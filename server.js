@@ -44,14 +44,14 @@ function getMovieHandler(req, res) {
   let movies = [];
   axios
     .get(
-      `https://api.themoviedb.org/3/movie/{movie_id}?${APIKEY}=<<api_key>>&language=en-US`
+      "https://api.themoviedb.org/3/movie/550?api_key=44bca49a3851cf70a7904aeed9847745"
     )
     .then((value) => {
       value.data.movies.forEach((movie) => {
         let oneMovie = new Movie(
-          movie.title,
-          movie.poster_path,
-          movie.overview
+          movie.data.title,
+          movie.data.poster_path,
+          movie.data.overview
         );
         movies.push(oneMovie);
       });
@@ -69,7 +69,7 @@ function getFavoriteHandler(req, res) {
 
   axios
     .get(
-      "https://api.themoviedb.org/3/movie/favorite/343611?api_key={APIKEY}&append_to_response=videos"
+      `https://api.themoviedb.org/3/movie/favorite/343611?api_key=${APIKEY}&append_to_response=videos`
     )
     .then((value) => {
       value.data.results.forEach((movie) => {
@@ -89,7 +89,7 @@ function getTrendingHandler(req, res) {
   let movies = [];
 
   axios
-    .get("https://api.themoviedb.org/3/trending/all/day?api_key=<<api_key>>")
+    .get(`https://api.themoviedb.org/3/movie/trending/all/day?api_key${APIKEY}`)
     .then((value) => {
       value.data.results.forEach((movie) => {
         movies.push(movie);
@@ -108,9 +108,7 @@ function getSearchHandler(req, res) {
   let movies = [];
 
   axios
-    .get(
-      "https://api.themoviedb.org/3/search/company?api_key=<<api_key>>&page=1"
-    )
+    .get(`https://api.themoviedb.org/3/search/movie${APIKEY}&page=1`)
     .then((value) => {
       value.data.results.forEach((movie) => {
         movies.push(movie);
