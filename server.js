@@ -27,7 +27,9 @@ app.get("/trending", getTrendingHandler);
 
 app.get("/search", getSearchHandler);
 
-app.use(errorHandler);
+app.get("/test", callTest);
+
+// app.use(errorHandler);
 
 app.use("*", notFountHandler);
 
@@ -56,12 +58,15 @@ function getMovieHandler(req, res) {
         movies.push(oneMovie);
       });
       return res.status(200).json(movies);
-    })
-    .catch((error) => {
-      errorHandler(error, req, res);
     });
+  // .catch((error) => {
+  //   errorHandler(error, req, res);
+  // });
 }
 
+function callTest(req, res) {
+  res.send("hello");
+}
 function getFavoriteHandler(req, res) {
   let favoriteQuery = req.query.favorite;
 
@@ -77,10 +82,10 @@ function getFavoriteHandler(req, res) {
       });
 
       return res.status(200).json(movies);
-    })
-    .catch((error) => {
-      errorHandler(error, req, res);
     });
+  // .catch((error) => {
+  //   errorHandler(error, req, res);
+  // });
 }
 
 function getTrendingHandler(req, res) {
@@ -96,10 +101,10 @@ function getTrendingHandler(req, res) {
       });
 
       return res.status(200).json(movies);
-    })
-    .catch((error) => {
-      errorHandler(error, req, res);
     });
+  // .catch((error) => {
+  //   errorHandler(error, req, res);
+  // });
 }
 
 function getSearchHandler(req, res) {
@@ -115,23 +120,23 @@ function getSearchHandler(req, res) {
       });
 
       return res.status(200).json(movies);
-    })
-    .catch((error) => {
-      errorHandler(error, req, res);
     });
+  // .catch((error) => {
+  //   errorHandler(error, req, res);
+  // });
 }
 
 function notFountHandler(req, res) {
   res.status(404).send("No endpoint with this name");
 }
 
-function errorHandler(error, req, res) {
-  const err = {
-    status: 500,
-    message: error,
-  };
+// function errorHandler(error, req, res) {
+//   const err = {
+//     status: 500,
+//     message: error,
+//   };
 
-  res.status(500).send(err);
-}
+//   res.status(500).send(err);
+// }
 
 app.listen(PORT, () => console.log(`server is listening to ${PORT}`));
