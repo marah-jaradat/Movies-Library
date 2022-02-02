@@ -14,18 +14,19 @@ const dotenv = require("dotenv");
 dotenv.config();
 const APIKEY = process.env.APIKEY;
 const PORT = process.env.PORT;
+
 //
 app.get("/", getMovieHandler);
-
-// app.get("/favorite", function (req, res) {
-//   return res.status(200).send("Welcome to Favorite Page");
-// });
 
 app.get("/favorite", getFavoriteHandler);
 
 app.get("/trending", getTrendingHandler);
 
 app.get("/search", getSearchHandler);
+
+app.get("/search/company", getSearchCompanyHandler);
+
+app.get("/watch/providers/regions", getWatchHandler);
 
 app.use(errorHandler);
 
@@ -109,6 +110,46 @@ function getSearchHandler(req, res) {
 
   axios
     .get(`https://api.themoviedb.org/3/search/movie${APIKEY}&page=1`)
+    .then((value) => {
+      value.data.results.forEach((movie) => {
+        movies.push(movie);
+      });
+
+      return res.status(200).json(movies);
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
+    });
+}
+
+function getSearchCompanyHandler(req, res) {
+  let companyhQuery = req.query.company;
+
+  let movies = [];
+
+  axios
+    .get(`https://api.themoviedb.org/3/search/company?api_key=${APIKEY}&page=1`)
+    .then((value) => {
+      value.data.results.forEach((movie) => {
+        movies.push(movie);
+      });
+
+      return res.status(200).json(movies);
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
+    });
+}
+
+function getWatchHandler(req, res) {
+  let watchQuery = req.query.watch;
+
+  let movies = [];
+
+  axios
+    .get(
+      `https://api.themoviedb.org/3/watch/providers/regions?api_key=${APIKEY}`
+    )
     .then((value) => {
       value.data.results.forEach((movie) => {
         movies.push(movie);
