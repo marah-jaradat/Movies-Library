@@ -3,37 +3,35 @@
 //
 const express = require("express");
 const app = express();
-
 const Data = require("./Movie data/data.json");
-// const PORT = 4012;
-
 const axios = require("axios");
-
 const dotenv = require("dotenv");
 
 dotenv.config();
 const APIKEY = process.env.APIKEY;
 const PORT = process.env.PORT;
+app.use(express.json());
 
-//
+const pg = require("pg");
+const DATABASE_URL = process.env.DATABASE_URL;
+const client = new pg.Client(DATABASE_URL);
+
+//Get
 app.get("/", getMovieHandler);
-
 app.get("/favorite", getFavoriteHandler);
-
 app.get("/trending", getTrendingHandler);
-
 app.get("/search", getSearchHandler);
-
 app.get("/search/company", getSearchCompanyHandler);
-
 app.get("/watch/providers/regions", getWatchHandler);
 
+// endpoint to insert
+app.post("/addMovie", addMovieHandler);
+
+// endpoint to get data
+app.get("/getAllMovies", getAllMoviesHandler);
+
+// errors
 app.use(errorHandler);
-app.get("/test", callTest);
-
-// app.use(errorHandler);
-
-
 app.use("*", notFountHandler);
 
 // Constructor
@@ -61,18 +59,14 @@ function getMovieHandler(req, res) {
         movies.push(oneMovie);
       });
       return res.status(200).json(movies);
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
     });
-  // .catch((error) => {
-  //   errorHandler(error, req, res);
-  // });
 }
 
-function callTest(req, res) {
-  res.send("hello");
-}
 function getFavoriteHandler(req, res) {
   let favoriteQuery = req.query.favorite;
-
   let movies = [];
 
   axios
@@ -85,15 +79,14 @@ function getFavoriteHandler(req, res) {
       });
 
       return res.status(200).json(movies);
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
     });
-  // .catch((error) => {
-  //   errorHandler(error, req, res);
-  // });
 }
 
 function getTrendingHandler(req, res) {
   let trendingQuery = req.query.trending;
-
   let movies = [];
 
   axios
@@ -104,15 +97,14 @@ function getTrendingHandler(req, res) {
       });
 
       return res.status(200).json(movies);
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
     });
-  // .catch((error) => {
-  //   errorHandler(error, req, res);
-  // });
 }
 
 function getSearchHandler(req, res) {
   let searchQuery = req.query.search;
-
   let movies = [];
 
   axios
@@ -123,15 +115,14 @@ function getSearchHandler(req, res) {
       });
 
       return res.status(200).json(movies);
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
     });
-  // .catch((error) => {
-  //   errorHandler(error, req, res);
-  // });
 }
 
 function getSearchCompanyHandler(req, res) {
   let companyhQuery = req.query.company;
-
   let movies = [];
 
   axios
@@ -150,7 +141,6 @@ function getSearchCompanyHandler(req, res) {
 
 function getWatchHandler(req, res) {
   let watchQuery = req.query.watch;
-
   let movies = [];
 
   axios
@@ -169,17 +159,50 @@ function getWatchHandler(req, res) {
     });
 }
 
+function addMovieHandler(req, res) {
+  let movie = req.body;
+
+  const sql = `INSERT INTO addMovie(title, poster_path, overview) VALUES($1, $2, $3) RETURNING * ;`;
+
+  let values = [movie.title, movie.poster_path, movie.overview];
+
+  client
+    .query(sql, values)
+    .then((data) => {
+      return res.status(201).json(data.rows[0]);
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
+    });
+}
+
+function getAllMoviesHandler(req, res) {
+  const sql = `SELECT * FROM addMovie`;
+  client
+    .query(sql)
+    .then((data) => {
+      return res.status(200).json(data.rows);
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
+    });
+}
+
 function notFountHandler(req, res) {
   res.status(404).send("No endpoint with this name");
 }
 
-// function errorHandler(error, req, res) {
-//   const err = {
-//     status: 500,
-//     message: error,
-//   };
+function errorHandler(error, req, res) {
+  const err = {
+    status: 500,
+    message: error,
+  };
 
-//   res.status(500).send(err);
-// }
+  res.status(500).send(err);
+}
 
-app.listen(PORT, () => console.log(`server is listening to ${PORT}`));
+client.connect().then(() => {
+  app.listen(PORT, () => {
+    console.log(`server is listening to ${PORT}`);
+  });
+});
