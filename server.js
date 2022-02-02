@@ -30,6 +30,14 @@ app.post("/addMovie", addMovieHandler);
 // endpoint to get data
 app.get("/getAllMovies", getAllMoviesHandler);
 
+// Endpoint to get specific recorded data
+app.get("/getSpecificMovie/id", getSpecificMovieHandler);
+
+app.put("/updateSpecificMovie/id", updateSpecificMovieHandler);
+app.delete("/deleteSpecificMovie/id", deleteSpecificMovieHandler);
+
+// Endpoint to delete a specific record
+
 // errors
 app.use(errorHandler);
 app.use("*", notFountHandler);
@@ -182,6 +190,52 @@ function getAllMoviesHandler(req, res) {
     .query(sql)
     .then((data) => {
       return res.status(200).json(data.rows);
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
+    });
+}
+
+function getSpecificMovieHandler(req, res) {
+  const id = req.param.id;
+  const sql = `SELECT *FROM addMovie WHERE id= ${id}`;
+
+  client
+    .query(sql)
+    .then((data) => {
+      res.status(200).json(data.rows);
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
+    });
+}
+
+function updateSpecificMovieHandler(req, res) {
+  const id = req.param.id;
+  let movie = req.body;
+  const sql = `UPDATE addMovie SET WHERE title=$1, poster_path= $2, overview=$3 WHERE id=${id}RETURNING `;
+  let values = [movie.title, movie.poster_path, movie.overview];
+
+  client
+    .query(sql)
+    .then((data) => {
+      res.status(200).json(data.rows);
+      res.status(2004).json([]);
+    })
+    .catch((error) => {
+      errorHandler(error, req, res);
+    });
+}
+
+function deleteSpecificMovieHandler(req, res) {
+  const id = req.param.id;
+  const sql = `DELETE FROM addMovie WHERE id= ${id}`;
+
+  client
+    .query(sql)
+    .then(() => {
+      res.status(200).json(data.rows);
+      res.status(2004).json([]);
     })
     .catch((error) => {
       errorHandler(error, req, res);
