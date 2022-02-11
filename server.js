@@ -1,25 +1,62 @@
 "use strict";
 
-//
 const express = require("express");
 const app = express();
-const Data = require("./Movie data/data.json");
-const axios = require("axios");
-const dotenv = require("dotenv");
 
-dotenv.config();
-const APIKEY = process.env.APIKEY;
-const PORT = process.env.PORT;
+require("dotenv").config();
+const PORT = process.env.PORT || 3002;
+// const Data = require("package.json");
+// we go undefined becausewe insert object as json inside body, so we have to parse data
 app.use(express.json());
+//Routs
 
-const pg = require("pg");
-const DATABASE_URL = process.env.DATABASE_URL;
-// const client = new pg.Client(DATABASE_URL);
+app.get("/", homeHandler);
+app.get("/favorite", favHandler);
+app.get("/user/:id", idHandler);
+app.post("/info", infoHandler);
 
-const client = new pg.Client({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-});
+// Functions
+// http://localhost:3000/
+function homeHandler(req, res) {
+  res.send("Hello there");
+  // return res.status(200).send(movie);
+}
+// http://localhost:3000/favorite
+function favHandler(req, res) {
+  // http://localhost:3000/favorite?name=marah
+  // console.log(req.query) as object, query is a keyword for the request
+  return res.status(200).send("Welcome to Favorite Page");
+}
+// http://localhost:3000/user/:id
+// req.params:is part of the req
+function idHandler(req, res) {
+  console.log(req.params);
+  res.send("I'm there");
+}
+// req.body:is part of the req
+function infoHandler(req, res) {
+  console.log(req.body);
+  res.send("I'm the body");
+}
+
+// const Data = require("./Movie data/data.json");
+// const axios = require("axios");
+// const dotenv = require("dotenv");
+
+// dotenv.config();
+// const APIKEY = process.env.APIKEY;
+// const PORT = process.env.PORT;
+// app.use(express.json());
+
+// const pg = require("pg");
+// const DATABASE_URL = process.env.DATABASE_URL;
+// // const client = new pg.Client(DATABASE_URL);
+
+// const client = new pg.Client({
+//   connectionString: process.env.DATABASE_URL,
+//   ssl: { rejectUnauthorized: false },
+// });
+
 
 //Get
 app.get("/", getMovieHandler);
